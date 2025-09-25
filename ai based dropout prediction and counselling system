@@ -1,0 +1,2151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduGuardian - AI Dropout Prediction & Counseling System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #6366f1;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --gray: #64748b;
+            --light-gray: #e2e8f0;
+            --white: #ffffff;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 260px;
+            background-color: var(--dark);
+            color: var(--white);
+            transition: all 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .nav-menu {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item.active {
+            background-color: var(--primary);
+            border-left: 4px solid var(--secondary);
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+            font-size: 20px;
+            color: var(--gray);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: white;
+            font-size: 10px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background-color: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray);
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .card-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .card-change {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .positive {
+            color: var(--success);
+        }
+
+        .negative {
+            color: var(--danger);
+        }
+
+        .icon-primary {
+            background-color: rgba(79, 70, 229, 0.1);
+            color: var(--primary);
+        }
+
+        .icon-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .icon-warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .icon-danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        /* Risk Indicators */
+        .risk-indicators {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .risk-indicator {
+            flex: 1;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .risk-high {
+            background-color: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--danger);
+        }
+
+        .risk-medium {
+            background-color: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid var(--warning);
+        }
+
+        .risk-low {
+            background-color: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--success);
+        }
+
+        .risk-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .risk-label {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        /* Tables */
+        .table-container {
+            background-color: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .table-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 8px 15px 8px 40px;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            width: 250px;
+            font-size: 14px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px 20px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--light);
+            font-weight: 600;
+            color: var(--gray);
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        tr {
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        tr:hover {
+            background-color: var(--light);
+        }
+
+        .status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-high {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .status-medium {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .status-low {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--light-gray);
+            color: var(--gray);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--light);
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        /* Chatbot */
+        .chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background-color: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            transform: translateY(calc(100% - 60px));
+        }
+
+        .chatbot-container.open {
+            transform: translateY(0);
+        }
+
+        .chatbot-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chatbot-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chatbot-close {
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 15px;
+            border-radius: 18px;
+            line-height: 1.4;
+        }
+
+        .message-bot {
+            background-color: var(--light);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-user {
+            background-color: var(--primary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chatbot-input {
+            padding: 15px;
+            border-top: 1px solid var(--light-gray);
+            display: flex;
+            gap: 10px;
+        }
+
+        .chatbot-input input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .chatbot-input button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background-color: var(--primary);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chatbot-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        /* Warning Signs */
+        .warning-signs {
+            background-color: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .warning-signs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .warning-signs-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .warning-signs-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .warning-sign {
+            padding: 15px;
+            border-radius: 8px;
+            background-color: var(--light);
+            border-left: 4px solid var(--warning);
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .warning-sign i {
+            color: var(--warning);
+            margin-top: 2px;
+        }
+
+        .warning-sign-content h4 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .warning-sign-content p {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        /* Solutions Section */
+        .solutions-container {
+            background-color: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .solutions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .solutions-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .solutions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .solution-card {
+            border: 1px solid var(--light-gray);
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .solution-card:hover {
+            box-shadow: var(--shadow);
+            transform: translateY(-3px);
+        }
+
+        .solution-card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .solution-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .solution-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .solution-description {
+            color: var(--gray);
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .solution-action {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* Student Details Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            cursor: pointer;
+            font-size: 20px;
+            color: var(--gray);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .student-details {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .student-profile {
+            text-align: center;
+        }
+
+        .student-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            font-size: 48px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+        }
+
+        .student-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .student-id {
+            color: var(--gray);
+            margin-bottom: 15px;
+        }
+
+        .student-info {
+            background-color: var(--light);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .info-value {
+            font-weight: 500;
+        }
+
+        .student-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--light-gray);
+            margin-bottom: 20px;
+        }
+
+        .student-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .student-tab.active {
+            color: var(--primary);
+        }
+
+        .student-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .attendance-summary {
+            margin-bottom: 20px;
+        }
+
+        .attendance-summary h3 {
+            margin-bottom: 15px;
+        }
+
+        .attendance-stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .attendance-stat {
+            flex: 1;
+            padding: 15px;
+            background-color: var(--light);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .attendance-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .attendance-stat-label {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .marks-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .marks-table th, .marks-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .marks-table th {
+            background-color: var(--light);
+            font-weight: 600;
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .fee-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .fee-status.paid {
+            background-color: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--success);
+        }
+
+        .fee-status.pending {
+            background-color: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid var(--warning);
+        }
+
+        .fee-status.overdue {
+            background-color: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--danger);
+        }
+
+        .fee-status-icon {
+            font-size: 24px;
+        }
+
+        .fee-status-content h4 {
+            margin-bottom: 5px;
+        }
+
+        .fee-status-content p {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .student-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .sidebar-header span,
+            .nav-item span {
+                display: none;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-container {
+                overflow-x: auto;
+            }
+            
+            table {
+                min-width: 600px;
+            }
+            
+            .chatbot-container {
+                width: 90%;
+                right: 5%;
+                left: 5%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .search-box input {
+                width: 100%;
+            }
+            
+            .risk-indicators {
+                flex-direction: column;
+            }
+            
+            .warning-signs-list,
+            .solutions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-graduation-cap logo"></i>
+                <span class="logo">EduGuardian</span>
+            </div>
+            <div class="nav-menu">
+                <div class="nav-item active" data-section="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" data-section="students">
+                    <i class="fas fa-users"></i>
+                    <span>Students Records</span>
+                </div>
+                <div class="nav-item" data-section="risk-analysis">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Risk Analysis</span>
+                </div>
+                <div class="nav-item" data-section="warning-signs">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Warning Signs</span>
+                </div>
+                <div class="nav-item" data-section="solutions">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Solutions</span>
+                </div>
+                <div class="nav-item" data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1 id="page-title">Dashboard</h1>
+                <div class="user-profile">
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </div>
+                    <div class="user-avatar">AD</div>
+                    <span>Admin</span>
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="content-section">
+                <!-- Dashboard Cards -->
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Total Students</div>
+                            <div class="card-icon icon-primary">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">1,248</div>
+                        <div class="card-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>12% from last month</span>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">At-Risk Students</div>
+                            <div class="card-icon icon-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">84</div>
+                        <div class="card-change negative">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>3% from last month</span>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Counseling Sessions</div>
+                            <div class="card-icon icon-success">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">326</div>
+                        <div class="card-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>8% from last month</span>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Dropout Rate</div>
+                            <div class="card-icon icon-danger">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">2.4%</div>
+                        <div class="card-change positive">
+                            <i class="fas fa-arrow-down"></i>
+                            <span>0.6% from last month</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risk Level Breakdown -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Risk Level Breakdown</div>
+                    </div>
+                    <div class="risk-indicators">
+                        <div class="risk-indicator risk-high">
+                            <div>
+                                <div class="risk-value">24</div>
+                                <div class="risk-label">High Risk</div>
+                            </div>
+                        </div>
+                        <div class="risk-indicator risk-medium">
+                            <div>
+                                <div class="risk-value">60</div>
+                                <div class="risk-label">Medium Risk</div>
+                            </div>
+                        </div>
+                        <div class="risk-indicator risk-low">
+                            <div>
+                                <div class="risk-value">1,164</div>
+                                <div class="risk-label">Low Risk</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- At-Risk Students Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="table-title">At-Risk Students</div>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Search students...">
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Grade</th>
+                                <th>Risk Level</th>
+                                <th>Last Attendance</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>STU-1001</td>
+                                <td>John Smith</td>
+                                <td>10th</td>
+                                <td><span class="status status-high">High</span></td>
+                                <td>5 days ago</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Counsel</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>STU-1002</td>
+                                <td>Emily Johnson</td>
+                                <td>9th</td>
+                                <td><span class="status status-high">High</span></td>
+                                <td>3 days ago</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Counsel</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>STU-1003</td>
+                                <td>Michael Brown</td>
+                                <td>11th</td>
+                                <td><span class="status status-medium">Medium</span></td>
+                                <td>1 day ago</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Counsel</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>STU-1004</td>
+                                <td>Sarah Davis</td>
+                                <td>12th</td>
+                                <td><span class="status status-medium">Medium</span></td>
+                                <td>2 days ago</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Counsel</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>STU-1005</td>
+                                <td>David Wilson</td>
+                                <td>10th</td>
+                                <td><span class="status status-low">Low</span></td>
+                                <td>Today</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Counsel</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Students Records Section -->
+            <div id="students" class="content-section" style="display: none;">
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="table-title">All Students Records</div>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Search students...">
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Grade</th>
+                                <th>Attendance</th>
+                                <th>Academic Performance</th>
+                                <th>Fee Status</th>
+                                <th>Risk Level</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>STU-1001</td>
+                                <td>John Smith</td>
+                                <td>10th</td>
+                                <td>65%</td>
+                                <td>Poor</td>
+                                <td>Pending</td>
+                                <td><span class="status status-high">High</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Edit</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>STU-1002</td>
+                                <td>Emily Johnson</td>
+                                <td>9th</td>
+                                <td>72%</td>
+                                <td>Average</td>
+                                <td>Paid</td>
+                                <td><span class="status status-high">High</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Edit</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>STU-1003</td>
+                                <td>Michael Brown</td>
+                                <td>11th</td>
+                                <td>80%</td>
+                                <td>Good</td>
+                                <td>Paid</td>
+                                <td><span class="status status-medium">Medium</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Edit</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>STU-1004</td>
+                                <td>Sarah Davis</td>
+                                <td>12th</td>
+                                <td>85%</td>
+                                <td>Excellent</td>
+                                <td>Paid</td>
+                                <td><span class="status status-medium">Medium</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Edit</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>STU-1005</td>
+                                <td>David Wilson</td>
+                                <td>10th</td>
+                                <td>92%</td>
+                                <td>Excellent</td>
+                                <td>Paid</td>
+                                <td><span class="status status-low">Low</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Edit</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>STU-1006</td>
+                                <td>Jennifer Taylor</td>
+                                <td>9th</td>
+                                <td>78%</td>
+                                <td>Good</td>
+                                <td>Pending</td>
+                                <td><span class="status status-low">Low</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Edit</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>STU-1007</td>
+                                <td>Robert Martinez</td>
+                                <td>11th</td>
+                                <td>88%</td>
+                                <td>Good</td>
+                                <td>Paid</td>
+                                <td><span class="status status-low">Low</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Edit</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>STU-1008</td>
+                                <td>Lisa Anderson</td>
+                                <td>12th</td>
+                                <td>95%</td>
+                                <td>Excellent</td>
+                                <td>Paid</td>
+                                <td><span class="status status-low">Low</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Edit</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Risk Analysis Section -->
+            <div id="risk-analysis" class="content-section" style="display: none;">
+                <!-- Risk Factors Summary -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Risk Factors Summary</div>
+                    </div>
+                    <div class="risk-indicators">
+                        <div class="risk-indicator risk-high">
+                            <div>
+                                <div class="risk-value">Academic</div>
+                                <div class="risk-label">32% of risks</div>
+                            </div>
+                        </div>
+                        <div class="risk-indicator risk-medium">
+                            <div>
+                                <div class="risk-value">Attendance</div>
+                                <div class="risk-label">28% of risks</div>
+                            </div>
+                        </div>
+                        <div class="risk-indicator risk-low">
+                            <div>
+                                <div class="risk-value">Financial</div>
+                                <div class="risk-label">25% of risks</div>
+                            </div>
+                        </div>
+                        <div class="risk-indicator risk-high">
+                            <div>
+                                <div class="risk-value">Social</div>
+                                <div class="risk-label">15% of risks</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="table-title">Risk Assessment Details</div>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Search students...">
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Overall Risk</th>
+                                <th>Academic Risk</th>
+                                <th>Attendance Risk</th>
+                                <th>Financial Risk</th>
+                                <th>Social Risk</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>STU-1001</td>
+                                <td>John Smith</td>
+                                <td><span class="status status-high">High</span></td>
+                                <td>High</td>
+                                <td>High</td>
+                                <td>Medium</td>
+                                <td>Low</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Intervene</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>STU-1002</td>
+                                <td>Emily Johnson</td>
+                                <td><span class="status status-high">High</span></td>
+                                <td>Medium</td>
+                                <td>High</td>
+                                <td>Low</td>
+                                <td>High</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Intervene</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>STU-1003</td>
+                                <td>Michael Brown</td>
+                                <td><span class="status status-medium">Medium</span></td>
+                                <td>Medium</td>
+                                <td>Low</td>
+                                <td>Medium</td>
+                                <td>Low</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Monitor</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>STU-1004</td>
+                                <td>Sarah Davis</td>
+                                <td><span class="status status-medium">Medium</span></td>
+                                <td>Low</td>
+                                <td>Medium</td>
+                                <td>Low</td>
+                                <td>Medium</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Monitor</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>STU-1005</td>
+                                <td>David Wilson</td>
+                                <td><span class="status status-low">Low</span></td>
+                                <td>Low</td>
+                                <td>Low</td>
+                                <td>Low</td>
+                                <td>Low</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Monitor</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Warning Signs Section -->
+            <div id="warning-signs" class="content-section" style="display: none;">
+                <div class="warning-signs">
+                    <div class="warning-signs-header">
+                        <div class="warning-signs-title">Early Warning Signs</div>
+                        <button class="btn btn-primary">Add New Indicator</button>
+                    </div>
+                    <div class="warning-signs-list">
+                        <div class="warning-sign">
+                            <i class="fas fa-book"></i>
+                            <div class="warning-sign-content">
+                                <h4>Declining Academic Performance</h4>
+                                <p>Drop in grades or failure to complete assignments</p>
+                            </div>
+                        </div>
+                        <div class="warning-sign">
+                            <i class="fas fa-user-times"></i>
+                            <div class="warning-sign-content">
+                                <h4>Poor Attendance</h4>
+                                <p>Frequent absences or tardiness without valid reasons</p>
+                            </div>
+                        </div>
+                        <div class="warning-sign">
+                            <i class="fas fa-comments-slash"></i>
+                            <div class="warning-sign-content">
+                                <h4>Social Withdrawal</h4>
+                                <p>Reduced interaction with peers and teachers</p>
+                            </div>
+                        </div>
+                        <div class="warning-sign">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <div class="warning-sign-content">
+                                <h4>Financial Issues</h4>
+                                <p>Unpaid fees or requests for financial assistance</p>
+                            </div>
+                        </div>
+                        <div class="warning-sign">
+                            <i class="fas fa-brain"></i>
+                            <div class="warning-sign-content">
+                                <h4>Behavioral Changes</h4>
+                                <p>Sudden changes in behavior or mood swings</p>
+                            </div>
+                        </div>
+                        <div class="warning-sign">
+                            <i class="fas fa-home"></i>
+                            <div class="warning-sign-content">
+                                <h4>Family Problems</h4>
+                                <p>Reported issues at home affecting student performance</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="table-title">Students with Warning Signs</div>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Search students...">
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Grade</th>
+                                <th>Warning Signs</th>
+                                <th>Risk Level</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>STU-1001</td>
+                                <td>John Smith</td>
+                                <td>10th</td>
+                                <td>Poor Attendance, Declining Grades</td>
+                                <td><span class="status status-high">High</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Intervene</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>STU-1002</td>
+                                <td>Emily Johnson</td>
+                                <td>9th</td>
+                                <td>Social Withdrawal, Behavioral Changes</td>
+                                <td><span class="status status-high">High</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Intervene</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>STU-1003</td>
+                                <td>Michael Brown</td>
+                                <td>11th</td>
+                                <td>Financial Issues</td>
+                                <td><span class="status status-medium">Medium</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Assist</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>STU-1004</td>
+                                <td>Sarah Davis</td>
+                                <td>12th</td>
+                                <td>Family Problems</td>
+                                <td><span class="status status-medium">Medium</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Counsel</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>STU-1005</td>
+                                <td>David Wilson</td>
+                                <td>10th</td>
+                                <td>Poor Attendance</td>
+                                <td><span class="status status-low">Low</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Monitor</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Solutions Section -->
+            <div id="solutions" class="content-section" style="display: none;">
+                <div class="solutions-container">
+                    <div class="solutions-header">
+                        <div class="solutions-title">Intervention Solutions</div>
+                        <button class="btn btn-primary">Create New Solution</button>
+                    </div>
+                    <div class="solutions-grid">
+                        <div class="solution-card">
+                            <div class="solution-card-header">
+                                <div class="solution-icon icon-primary">
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                </div>
+                                <div class="solution-title">Academic Support</div>
+                            </div>
+                            <div class="solution-description">
+                                Provide additional tutoring, study groups, and academic resources for students struggling with coursework.
+                            </div>
+                            <div class="solution-action">
+                                <button class="btn btn-primary btn-sm">Apply</button>
+                            </div>
+                        </div>
+                        <div class="solution-card">
+                            <div class="solution-card-header">
+                                <div class="solution-icon icon-success">
+                                    <i class="fas fa-comments"></i>
+                                </div>
+                                <div class="solution-title">Counseling Sessions</div>
+                            </div>
+                            <div class="solution-description">
+                                Schedule regular one-on-one counseling sessions to address personal and academic challenges.
+                            </div>
+                            <div class="solution-action">
+                                <button class="btn btn-primary btn-sm">Apply</button>
+                            </div>
+                        </div>
+                        <div class="solution-card">
+                            <div class="solution-card-header">
+                                <div class="solution-icon icon-warning">
+                                    <i class="fas fa-hand-holding-usd"></i>
+                                </div>
+                                <div class="solution-title">Financial Assistance</div>
+                            </div>
+                            <div class="solution-description">
+                                Offer scholarships, grants, or flexible payment plans for students facing financial difficulties.
+                            </div>
+                            <div class="solution-action">
+                                <button class="btn btn-primary btn-sm">Apply</button>
+                            </div>
+                        </div>
+                        <div class="solution-card">
+                            <div class="solution-card-header">
+                                <div class="solution-icon icon-danger">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="solution-title">Peer Mentoring</div>
+                            </div>
+                            <div class="solution-description">
+                                Connect at-risk students with peer mentors who can provide guidance and support.
+                            </div>
+                            <div class="solution-action">
+                                <button class="btn btn-primary btn-sm">Apply</button>
+                            </div>
+                        </div>
+                        <div class="solution-card">
+                            <div class="solution-card-header">
+                                <div class="solution-icon icon-primary">
+                                    <i class="fas fa-home"></i>
+                                </div>
+                                <div class="solution-title">Family Engagement</div>
+                            </div>
+                            <div class="solution-description">
+                                Involve families in the intervention process through regular communication and meetings.
+                            </div>
+                            <div class="solution-action">
+                                <button class="btn btn-primary btn-sm">Apply</button>
+                            </div>
+                        </div>
+                        <div class="solution-card">
+                            <div class="solution-card-header">
+                                <div class="solution-icon icon-success">
+                                    <i class="fas fa-laptop"></i>
+                                </div>
+                                <div class="solution-title">Technology Access</div>
+                            </div>
+                            <div class="solution-description">
+                                Provide devices and internet access for students who lack technology resources at home.
+                            </div>
+                            <div class="solution-action">
+                                <button class="btn btn-primary btn-sm">Apply</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="table-title">Applied Solutions</div>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Search solutions...">
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Solution ID</th>
+                                <th>Student</th>
+                                <th>Solution Type</th>
+                                <th>Date Applied</th>
+                                <th>Status</th>
+                                <th>Effectiveness</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>SOL-1001</td>
+                                <td>John Smith</td>
+                                <td>Academic Support</td>
+                                <td>2023-05-15</td>
+                                <td><span class="status status-medium">In Progress</span></td>
+                                <td>Improving</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Update</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>SOL-1002</td>
+                                <td>Emily Johnson</td>
+                                <td>Counseling Sessions</td>
+                                <td>2023-05-10</td>
+                                <td><span class="status status-medium">In Progress</span></td>
+                                <td>Stable</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Update</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>SOL-1003</td>
+                                <td>Michael Brown</td>
+                                <td>Financial Assistance</td>
+                                <td>2023-05-01</td>
+                                <td><span class="status status-low">Completed</span></td>
+                                <td>Effective</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Report</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>SOL-1004</td>
+                                <td>Sarah Davis</td>
+                                <td>Family Engagement</td>
+                                <td>2023-04-28</td>
+                                <td><span class="status status-low">Completed</span></td>
+                                <td>Highly Effective</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Report</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settings" class="content-section" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">System Settings</div>
+                    </div>
+                    <div style="padding: 20px;">
+                        <p>Settings panel will be implemented here.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot -->
+    <div class="chatbot-container" id="chatbot">
+        <div class="chatbot-header">
+            <div class="chatbot-title">
+                <i class="fas fa-robot"></i>
+                <span>Counseling Assistant</span>
+            </div>
+            <div class="chatbot-close" id="chatbot-close">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+        <div class="chatbot-messages" id="chatbot-messages">
+            <div class="message message-bot">
+                Hello! I'm your AI counseling assistant. How can I help you today?
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="chatbot-input" placeholder="Type your message...">
+            <button id="chatbot-send">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <button class="chatbot-toggle" id="chatbot-toggle">
+        <i class="fas fa-comments"></i>
+    </button>
+
+    <!-- Student Details Modal -->
+    <div class="modal" id="student-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Student Details</div>
+                <div class="modal-close" id="modal-close">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="student-details">
+                    <div class="student-profile">
+                        <div class="student-avatar">JS</div>
+                        <div class="student-name">John Smith</div>
+                        <div class="student-id">STU-1001</div>
+                        <div class="student-info">
+                            <div class="info-row">
+                                <div class="info-label">Grade:</div>
+                                <div class="info-value">10th</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Age:</div>
+                                <div class="info-value">15</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Gender:</div>
+                                <div class="info-value">Male</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Contact:</div>
+                                <div class="info-value">john@example.com</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Risk Level:</div>
+                                <div class="info-value"><span class="status status-high">High</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="student-tabs">
+                            <div class="student-tab active" data-tab="attendance">Attendance</div>
+                            <div class="student-tab" data-tab="marks">Academic Performance</div>
+                            <div class="student-tab" data-tab="fees">Fee Details</div>
+                            <div class="student-tab" data-tab="counseling">Counseling History</div>
+                        </div>
+                        <div class="tab-content active" id="attendance">
+                            <div class="attendance-summary">
+                                <h3>Attendance Overview</h3>
+                                <div class="attendance-stats">
+                                    <div class="attendance-stat">
+                                        <div class="attendance-stat-value">65%</div>
+                                        <div class="attendance-stat-label">Overall Attendance</div>
+                                    </div>
+                                    <div class="attendance-stat">
+                                        <div class="attendance-stat-value">24</div>
+                                        <div class="attendance-stat-label">Days Absent</div>
+                                    </div>
+                                    <div class="attendance-stat">
+                                        <div class="attendance-stat-value">5</div>
+                                        <div class="attendance-stat-label">Days Since Last</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-content" id="marks">
+                            <h3>Academic Performance</h3>
+                            <table class="marks-table">
+                                <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Assignment 1</th>
+                                        <th>Assignment 2</th>
+                                        <th>Mid Term</th>
+                                        <th>Final</th>
+                                        <th>Grade</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Mathematics</td>
+                                        <td>65%</td>
+                                        <td>58%</td>
+                                        <td>62%</td>
+                                        <td>-</td>
+                                        <td>D</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Science</td>
+                                        <td>72%</td>
+                                        <td>68%</td>
+                                        <td>70%</td>
+                                        <td>-</td>
+                                        <td>C</td>
+                                    </tr>
+                                    <tr>
+                                        <td>English</td>
+                                        <td>60%</td>
+                                        <td>55%</td>
+                                        <td>58%</td>
+                                        <td>-</td>
+                                        <td>D</td>
+                                    </tr>
+                                    <tr>
+                                        <td>History</td>
+                                        <td>78%</td>
+                                        <td>75%</td>
+                                        <td>76%</td>
+                                        <td>-</td>
+                                        <td>C</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="info-row">
+                                <div class="info-label">Overall GPA:</div>
+                                <div class="info-value">1.8</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Class Rank:</div>
+                                <div class="info-value">85/100</div>
+                            </div>
+                        </div>
+                        <div class="tab-content" id="fees">
+                            <h3>Fee Details</h3>
+                            <div class="fee-status pending">
+                                <div class="fee-status-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="fee-status-content">
+                                    <h4>Tuition Fee</h4>
+                                    <p>$1,200 pending for Q2 2023</p>
+                                </div>
+                            </div>
+                            <div class="fee-status paid">
+                                <div class="fee-status-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="fee-status-content">
+                                    <h4>Tuition Fee</h4>
+                                    <p>$1,200 paid for Q1 2023</p>
+                                </div>
+                            </div>
+                            <div class="fee-status overdue">
+                                <div class="fee-status-icon">
+                                    <i class="fas fa-times-circle"></i>
+                                </div>
+                                <div class="fee-status-content">
+                                    <h4>Lab Fee</h4>
+                                    <p>$150 overdue from Q4 2022</p>
+                                </div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Total Outstanding:</div>
+                                <div class="info-value">$1,350</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Payment Plan:</div>
+                                <div class="info-value">None</div>
+                            </div>
+                        </div>
+                        <div class="tab-content" id="counseling">
+                            <h3>Counseling History</h3>
+                            <table class="marks-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Counselor</th>
+                                        <th>Reason</th>
+                                        <th>Outcome</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2023-05-10</td>
+                                        <td>Dr. Sarah Johnson</td>
+                                        <td>Poor Attendance</td>
+                                        <td>Referral to Academic Support</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2023-04-22</td>
+                                        <td>Dr. Michael Brown</td>
+                                        <td>Behavioral Issues</td>
+                                        <td>Weekly Check-ins Scheduled</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2023-03-15</td>
+                                        <td>Dr. Emily Davis</td>
+                                        <td>Declining Grades</td>
+                                        <td>Tutoring Arranged</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="info-row">
+                                <div class="info-label">Next Session:</div>
+                                <div class="info-value">2023-05-24</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Counselor:</div>
+                                <div class="info-value">Dr. Sarah Johnson</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: right; padding: 20px; border-top: 1px solid var(--light-gray);">
+                    <button class="btn btn-primary">Apply Intervention</button>
+                    <button class="btn btn-outline">Schedule Counseling</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const navItems = document.querySelectorAll('.nav-item');
+            const contentSections = document.querySelectorAll('.content-section');
+            const pageTitle = document.getElementById('page-title');
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const section = this.getAttribute('data-section');
+                    
+                    // Update active nav item
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update page title
+                    pageTitle.textContent = this.querySelector('span').textContent;
+                    
+                    // Show selected section
+                    contentSections.forEach(content => {
+                        content.style.display = 'none';
+                    });
+                    document.getElementById(section).style.display = 'block';
+                });
+            });
+            
+            // Chatbot functionality
+            const chatbotToggle = document.getElementById('chatbot-toggle');
+            const chatbot = document.getElementById('chatbot');
+            const chatbotClose = document.getElementById('chatbot-close');
+            const chatbotInput = document.getElementById('chatbot-input');
+            const chatbotSend = document.getElementById('chatbot-send');
+            const chatbotMessages = document.getElementById('chatbot-messages');
+            
+            chatbotToggle.addEventListener('click', function() {
+                chatbot.classList.add('open');
+            });
+            
+            chatbotClose.addEventListener('click', function() {
+                chatbot.classList.remove('open');
+            });
+            
+            function sendMessage() {
+                const message = chatbotInput.value.trim();
+                if (message === '') return;
+                
+                // Add user message
+                const userMessage = document.createElement('div');
+                userMessage.className = 'message message-user';
+                userMessage.textContent = message;
+                chatbotMessages.appendChild(userMessage);
+                
+                // Clear input
+                chatbotInput.value = '';
+                
+                // Simulate bot response
+                setTimeout(() => {
+                    const botMessage = document.createElement('div');
+                    botMessage.className = 'message message-bot';
+                    botMessage.textContent = 'Thank you for your message. I understand you\'re concerned about this issue. Let me connect you with a counselor who can help you further.';
+                    chatbotMessages.appendChild(botMessage);
+                    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+                }, 1000);
+                
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            }
+            
+            chatbotSend.addEventListener('click', sendMessage);
+            chatbotInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // Student modal functionality
+            const modal = document.getElementById('student-modal');
+            const modalClose = document.getElementById('modal-close');
+            const viewButtons = document.querySelectorAll('.btn-primary');
+            
+            viewButtons.forEach(button => {
+                if (button.textContent === 'View') {
+                    button.addEventListener('click', function() {
+                        modal.classList.add('open');
+                    });
+                }
+            });
+            
+            modalClose.addEventListener('click', function() {
+                modal.classList.remove('open');
+            });
+            
+            // Student tabs functionality
+            const studentTabs = document.querySelectorAll('.student-tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            studentTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Update active tab
+                    studentTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show selected tab content
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
